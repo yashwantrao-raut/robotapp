@@ -8,7 +8,7 @@ class RobotTest extends Specification {
     Battery battery
     LEDDisplay display
     BarCodeScanner scanner
-    OnHeadIndicator headIndicator;
+    OnHeadIndicator headIndicator
 
     void setup() {
         battery = new Battery()
@@ -19,102 +19,102 @@ class RobotTest extends Specification {
     }
 
     def "Robot can walk on battery 5 km per charge"() {
-        given:
+        given: "Battery already charged"
             battery.charge()
 
-        when:
+        when: "Robot walk 5 km"
             robot.walk(5)
 
 
-        then:
+        then: "Robot walk distance should be 5 km and battery percentage should be zero "
         robot.getWalkDistance() == 5
         battery.getPercentage() == 0
     }
     def "Robot walks for 3.5 KM"() {
-        given:
+        given:"Battery already charged"
             battery.charge()
 
-        when:
+        when:"Robot walk 3.5 km"
             robot.walk(3.5)
 
-        then:
+        then: "Battery percentage should be 30 % "
         battery.getPercentage() == 30
     }
     def "Robot walks for 2 Km carrying 3 Kg weight"() {
-        given:
+        given: "Battery already charged and robot carry 3 kg weight"
             battery.charge()
             robot.carry(new AnyObject("3 kg",3))
 
 
-        when:
+        when: "Robot walk 2 km"
         robot.walk(2)
 
-        then:
+        then: "Battery percentage should be 57.6 % "
         battery.getPercentage() ==  57.6
     }
 
     def "if less than 15 % battery remaining then red light on Robot head should lit up indicating low battery"() {
-        given:
+        given:"Battery 10 % remaining"
         battery.charge()
         battery.use(90)
 
-        when:
+        when:"Robot walk 0 km"
         robot.walk(0)
 
-        then:
+        then: "Head indicator status should be red"
         headIndicator.getStatus() == OnHeadIndicator.Status.RED
     }
     def "For every Kilogram carried by Robot, 2% extra [in addition to walking discharge] battery will be consumed that is 4 km 500 meter for 5 kg weight"() {
-        given:
+        given:"Battery already charged"
         battery.charge()
 
-        when:
+        when: "Robot walk 2 km with caring 5 kg weight"
         robot.carry(new AnyObject("5 kg",10))
         robot.walk(2)
 
-        then:
+        then: "Battery percentage should be 52 % "
         battery.getPercentage() == 52
     }
 
     def "If the weight of the object is more than 10 Kg, Robot display [LED display on chest] will show message 'Overweight'"() {
-        given:
+        given: "Battery already charged and robot has display"
         LEDDisplay display = Mock()
         robot.display=display
         battery.charge()
 
-        when:
+        when: "Robot carry object more than 10 kg"
         robot.carry(new AnyObject("more than 10 kg",12))
 
-        then:
+        then: "Overweight should be displayed on display"
         1 * display.show("Overweight")
     }
 
     def "Robot can scan any bar code and display it's price on Robot Display"() {
-        given:
+        given: "Robot is having display and scanner"
         LEDDisplay display = Mock()
         robot.display=display
         scanner.update(BarCodeScanner.Status.SUCCESS)
 
 
-        when:
+        when: "Robot do scan"
         robot.scan()
 
-        then:
+        then: "Product price 15 should be displayed on display"
         1 * display.show("Product price is 15 Rs.")
     }
 
     def "In case bar code is not clear enough for scanning, Robot display will show “Scan Failure”"() {
 
-        given:
+        given: "Robot is having display and scanner. Scanner status is failed"
         LEDDisplay display = Mock()
         robot.display=display
         scanner.update(BarCodeScanner.Status.FAILUR)
 
 
-        when:
+        when:"Robot do scan"
         robot.scan()
 
-        then:
+        then:" Scan failure message should be display on screen"
         1 * display.show("Scan Failure")
 
     }
