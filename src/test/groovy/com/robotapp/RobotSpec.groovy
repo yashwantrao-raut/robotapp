@@ -2,7 +2,7 @@ package com.robotapp
 
 import spock.lang.Specification
 
-class RobotTest extends Specification {
+class RobotSpec extends Specification {
 
     Robot robot
     Battery battery
